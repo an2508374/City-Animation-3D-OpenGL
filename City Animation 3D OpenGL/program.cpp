@@ -14,9 +14,10 @@ const char* vertexShaderSource = "#version 330 core\n"
     "}\0";
 const char* fragmentShaderSource = "#version 330 core\n"
     "out vec4 FragColor;\n"
+    "uniform vec4 ourColor;"
     "void main()\n"
     "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "   FragColor = ourColor;\n"
     "}\n\0";
 
 int main()
@@ -96,14 +97,12 @@ int main()
 
     // set up vertices and indices
     float vertices[] = {
-         0.5f,  0.5f, 0.0f,  // top right
          0.5f, -0.5f, 0.0f,  // bottom right
         -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left 
+        0.0f,  0.5f, 0.0f   // top
     };
     unsigned int indices[] = {  // note that we start from 0!
-        0, 1, 3,   // first triangle
-        1, 2, 3    // second triangle
+        0, 1, 2,   // triangle
     };
 
     // configure vertex attributes
@@ -126,7 +125,7 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // render loop
     while (!glfwWindowShouldClose(window))
@@ -134,11 +133,20 @@ int main()
         // input
         processInput(window);
 
-        // rendering commands
+        // clear the colorbuffer
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        // activate the shader
         glUseProgram(shaderProgram);
+
+        // update the uniform color
+        float timeValue = glfwGetTime();
+        float greenValue = sin(timeValue) / 2.0f + 0.5f;
+        int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
+        // render the triangle
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
