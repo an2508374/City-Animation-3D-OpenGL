@@ -135,9 +135,15 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="GLFWFunctions.cpp" />
     <ClCompile Include="program.cpp" />
+    <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLFWFunctions.h" />
+    <ClInclude Include="Shader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="startShader.fs.glsl" />
+    <None Include="startShader.vs.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
