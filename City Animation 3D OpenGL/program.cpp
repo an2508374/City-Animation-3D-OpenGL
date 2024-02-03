@@ -125,10 +125,10 @@ int main()
     }
     stbi_image_free(data);
 
-    // create the matrix of transformation
-    glm::mat4 trans = glm::mat4(1.0f);
-    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
-    trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+    //// create the matrix of transformation
+    //glm::mat4 trans = glm::mat4(1.0f);
+    //trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+    //trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
 
     // render loop
     while (!glfwWindowShouldClose(window))
@@ -146,13 +146,16 @@ int main()
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture1);
 
+        // update the transformation matrix
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
         // render the triangle
         shaderProgram.use();
         shaderProgram.setInt("texture0", 0);
         shaderProgram.setInt("texture1", 1);
-
-        unsigned int transformLoc = glGetUniformLocation(shaderProgram.ID, "transform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+        shaderProgram.setMat4("transform", trans);
 
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
