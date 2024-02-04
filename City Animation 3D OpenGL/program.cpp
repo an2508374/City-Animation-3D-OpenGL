@@ -8,9 +8,10 @@
 #include "Shader.h"
 #include "stb_image.h"
 
+void processInput(GLFWwindow* window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void processInput(GLFWwindow* window);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 // settings
 const unsigned int SCR_WIDTH = 1366;
@@ -20,14 +21,18 @@ const unsigned int SCR_HEIGHT = 768;
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-double pitch = 0.0f;
-double yaw = -90.0f;
+
+float yaw = -90.0f;
+float pitch = 0.0f;
+
+// projection
+float fov = 45.0f;
 
 // timing
 float deltaTime = 0.0f;	// Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 
-// cursor
+// mouse
 float lastX = (float)SCR_WIDTH / 2;
 float lastY = (float)SCR_HEIGHT / 2;
 bool firstMouse = true;
@@ -56,6 +61,7 @@ int main()
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     // initialize GLAD
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -223,7 +229,7 @@ int main()
 
         // create projection matrix
         glm::mat4 projection = glm::mat4(1.0f);
-        projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
         // render cubes
         shaderProgram.use();
@@ -313,4 +319,13 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     direction.y = sin(glm::radians(pitch));
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     cameraFront = glm::normalize(direction);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    fov -= 2.0f * (float)yoffset;
+    if (fov < 1.0f)
+        fov = 1.0f;
+    if (fov > 45.0f)
+        fov = 45.0f;
 }
