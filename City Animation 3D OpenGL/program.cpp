@@ -69,7 +69,8 @@ int main()
     }
 
     // build and compile shaders
-    Shader shaderProgram("Shaders/PhongShader.vs.glsl", "PhongShader.fs.glsl");
+    //Shader shaderProgram("Shaders/PhongShader.vs.glsl", "Shaders/PhongShader.fs.glsl");
+    Shader shaderProgram("Shaders/GouraudShader.vs.glsl", "Shaders/GouraudShader.fs.glsl");
     Shader lightShaderProgram("Shaders/lightShader.vs.glsl", "Shaders/lightShader.fs.glsl");
 
     // configure global opengl state
