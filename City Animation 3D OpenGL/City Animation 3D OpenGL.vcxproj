@@ -144,6 +144,8 @@
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="lightShader.fs.glsl" />
+    <None Include="lightShader.vs.glsl" />
     <None Include="startShader.fs.glsl" />
     <None Include="startShader.vs.glsl" />
   </ItemGroup>

@@ -30,6 +30,9 @@ float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
+// lighting
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
 int main()
 {
     // instantiate the GLFW window
@@ -67,6 +70,7 @@ int main()
 
     // build and compile shaders
     Shader shaderProgram("startShader.vs.glsl", "startShader.fs.glsl");
+    Shader lightShaderProgram("lightShader.vs.glsl", "lightShader.fs.glsl");
 
     // configure global opengl state
     glEnable(GL_DEPTH_TEST);
@@ -155,6 +159,16 @@ int main()
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+    // configure light object
+    unsigned int lightVAO;
+    glGenVertexArrays(1, &lightVAO);
+    glBindVertexArray(lightVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
     // load and create textures
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -213,17 +227,19 @@ int main()
         processInput(window);
 
         // clear color and depth buffers
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // bind textures
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture0);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture1);
+        //glActiveTexture(GL_TEXTURE0);
+        //glBindTexture(GL_TEXTURE_2D, texture0);
+        //glActiveTexture(GL_TEXTURE1);
+        //glBindTexture(GL_TEXTURE_2D, texture1);
 
-        // activate shader
+        // activate shaders
         shaderProgram.use();
+        shaderProgram.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+        shaderProgram.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
         // create projection matrix
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -233,21 +249,43 @@ int main()
         glm::mat4 view = camera.GetViewMatrix();
         shaderProgram.setMat4("view", view);
 
-        // render cubes
-        glBindVertexArray(VAO);
-        for (unsigned int i = 0; i < 10; i++)
-        {
-            // create model matrix
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
+        // world transformation
+        glm::mat4 model = glm::mat4(1.0f);
+        shaderProgram.setMat4("model", model);
 
-            // rotate model matrix
-            float angle = 20.0f * i;
-            model = glm::rotate(model, (float)glfwGetTime() + glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            
-            shaderProgram.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        // render the cube
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        //// render cubes
+        //glBindVertexArray(VAO);
+        //for (unsigned int i = 0; i < 10; i++)
+        //{
+        //    // create model matrix
+        //    glm::mat4 model = glm::mat4(1.0f);
+        //    model = glm::translate(model, cubePositions[i]);
+
+        //    // rotate model matrix
+        //    float angle = 20.0f * i;
+        //    model = glm::rotate(model, (float)glfwGetTime() + glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+        //    
+        //    shaderProgram.setMat4("model", model);
+        //    glDrawArrays(GL_TRIANGLES, 0, 36);
+        //}
+
+        // create model matrix for light
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPos);
+        model = glm::scale(model, glm::vec3(0.2f));
+
+        // render light cube
+        lightShaderProgram.use();
+        lightShaderProgram.setMat4("projection", projection);
+        lightShaderProgram.setMat4("view", view);
+        lightShaderProgram.setMat4("model", model);
+
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // check and call events and swap the buffers
         glfwSwapBuffers(window);
