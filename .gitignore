@@ -367,3 +367,6 @@ FodyWeavers.xsd
 **/*.jpeg
 **/*.png
 **/*.bmp
+
+# Mtl
+**/*.mtl
