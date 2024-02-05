@@ -98,13 +98,18 @@ int main()
     Shader lightShaderProgram("Shaders/lightShader.vs.glsl", "Shaders/lightShader.fs.glsl");
 
     // initialize cameras
-    stationaryCamera = new Camera(glm::vec3(0.0f, 5.0f, 3.0f));
-    followingCamera = new Camera(glm::vec3(0.0f, 5.0f, 3.0f));
-    fppCamera = new Camera(glm::vec3(0.0f, 5.0f, 3.0f));
-    freeCamera = new Camera(glm::vec3(0.0f, 5.0f, 3.0f));
+    glm::vec3 startCameraPosition = glm::vec3(0.0f, 2.0f, 6.0f);
+    glm::vec3 startCameraTarget = glm::vec3(0.0f, 0.0f, 3.0f);
+
+    stationaryCamera = new Camera(startCameraPosition);
+    followingCamera = new Camera(startCameraPosition);
+    fppCamera = new Camera(startCameraPosition);
+    freeCamera = new Camera(startCameraPosition);
 
     activeCamera = freeCamera;
     freeCameraActive = true;
+
+    stationaryCamera->UpdateFront(glm::normalize(startCameraTarget - startCameraPosition));
 
     // load models
     //Model backpackModel("Resources/Backpack/backpack.obj");
@@ -336,7 +341,7 @@ int main()
 
         // render the car model
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 3.0f));
+        model = glm::translate(model, startCameraTarget);
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
         model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
