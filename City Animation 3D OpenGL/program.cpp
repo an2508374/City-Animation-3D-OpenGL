@@ -46,6 +46,7 @@ Shader* PhongShaderProgram;
 Shader* GouraudShaderProgram;
 Shader* FlatShaderProgram;
 Shader* shaderProgram;
+int isDay = 1;
 
 int main()
 {
@@ -283,7 +284,11 @@ int main()
         processInput(window);
 
         // clear color and depth buffers
-        glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
+        if (isDay)
+            glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
+        else
+            glClearColor(0.128f, 0.171f, 0.700f, 1.0f);
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //// change light position
@@ -299,37 +304,17 @@ int main()
         // activate shaders
         shaderProgram->use();
 
-        //shaderProgram->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        //shaderProgram->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-        //shaderProgram->setVec3("lightPos", lightPos);
+        shaderProgram->setInt("isDay", isDay);
         shaderProgram->setVec3("viewPos", activeCamera->Position);
-
-        //shaderProgram->setVec3("materialAmbient", 1.0f, 0.5f, 0.31f);
-        //shaderProgram->setVec3("materialDiffuse", 1.0f, 0.5f, 0.31f);
-        //shaderProgram->setVec3("materialSpecular", 0.5f, 0.5f, 0.5f);
-        shaderProgram->setFloat("materialShininess", 32.0f);
-
-        //shaderProgram->setVec3("lightAmbient", 0.2f, 0.2f, 0.2f);
-        //shaderProgram->setVec3("lightDiffuse", 0.5f, 0.5f, 0.5f);
-        //shaderProgram->setVec3("lightSpecular", 1.0f, 1.0f, 1.0f);
-
-        //shaderProgram->setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
-        //shaderProgram->setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-        //shaderProgram->setVec3("material.specular", 0.5f, 0.5f, 0.5f);
-        //shaderProgram->setFloat("material.shininess", 32.0f);
-
-        //shaderProgram->setVec3("light.position", lightPos);
-        //shaderProgram->setVec3("light.ambient", 0.8f, 0.8f, 0.8f);
-        //shaderProgram->setVec3("light.diffuse", 0.8f, 0.8f, 0.8f);
-        //shaderProgram->setVec3("light.specular", 0.8f, 0.8f, 0.8f);
+        shaderProgram->setFloat("material.shininess", 32.0f);
 
         shaderProgram->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-        shaderProgram->setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-        shaderProgram->setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-        shaderProgram->setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+        shaderProgram->setVec3("dirLight.ambient", 0.4f, 0.4f, 0.4f);
+        shaderProgram->setVec3("dirLight.diffuse", 0.8f, 0.8f, 0.8f);
+        shaderProgram->setVec3("dirLight.specular", 0.8f, 0.8f, 0.8f);
 
-        shaderProgram->setVec3("spotLights[0].position", activeCamera->Position);
-        shaderProgram->setVec3("spotLights[0].direction", activeCamera->Front);
+        shaderProgram->setVec3("spotLights[0].position", followingCamera->Position);
+        shaderProgram->setVec3("spotLights[0].direction", followingCamera->Front);
         shaderProgram->setVec3("spotLights[0].ambient", 0.0f, 0.0f, 0.0f);
         shaderProgram->setVec3("spotLights[0].diffuse", 1.0f, 1.0f, 1.0f);
         shaderProgram->setVec3("spotLights[0].specular", 1.0f, 1.0f, 1.0f);
@@ -461,6 +446,14 @@ void processInput(GLFWwindow* window)
         shaderProgram = GouraudShaderProgram;
     if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
         shaderProgram = PhongShaderProgram;
+
+    if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
+    {
+        if (isDay == 1)
+            isDay = 0;
+        else
+            isDay = 1;
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)

@@ -6,6 +6,7 @@ in vec2 TexCoords;
 in vec3 FragPos;
 in vec3 Normal;
 
+uniform int isDay;
 uniform vec3 viewPos;
 
 
@@ -70,8 +71,11 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
 
+    vec3 result = vec3(0.0, 0.0, 0.0);
+
     // directional lighting
-    vec3 result = CalcDirLight(dirLight, norm, viewDir);
+    if (isDay == 1)
+        result += CalcDirLight(dirLight, norm, viewDir);
 
     // point light
     //result += CalcPointLight(pointLight, norm, FragPos, viewDir);
