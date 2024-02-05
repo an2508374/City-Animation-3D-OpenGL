@@ -307,7 +307,7 @@ int main()
         //shaderProgram->setVec3("materialAmbient", 1.0f, 0.5f, 0.31f);
         //shaderProgram->setVec3("materialDiffuse", 1.0f, 0.5f, 0.31f);
         //shaderProgram->setVec3("materialSpecular", 0.5f, 0.5f, 0.5f);
-        //shaderProgram->setFloat("materialShininess", 32.0f);
+        shaderProgram->setFloat("materialShininess", 32.0f);
 
         //shaderProgram->setVec3("lightAmbient", 0.2f, 0.2f, 0.2f);
         //shaderProgram->setVec3("lightDiffuse", 0.5f, 0.5f, 0.5f);
@@ -318,10 +318,26 @@ int main()
         //shaderProgram->setVec3("material.specular", 0.5f, 0.5f, 0.5f);
         //shaderProgram->setFloat("material.shininess", 32.0f);
 
-        shaderProgram->setVec3("light.position", lightPos);
-        shaderProgram->setVec3("light.ambient", 0.8f, 0.8f, 0.8f);
-        shaderProgram->setVec3("light.diffuse", 0.8f, 0.8f, 0.8f);
-        shaderProgram->setVec3("light.specular", 0.8f, 0.8f, 0.8f);
+        //shaderProgram->setVec3("light.position", lightPos);
+        //shaderProgram->setVec3("light.ambient", 0.8f, 0.8f, 0.8f);
+        //shaderProgram->setVec3("light.diffuse", 0.8f, 0.8f, 0.8f);
+        //shaderProgram->setVec3("light.specular", 0.8f, 0.8f, 0.8f);
+
+        shaderProgram->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+        shaderProgram->setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+        shaderProgram->setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+        shaderProgram->setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+
+        shaderProgram->setVec3("spotLights[0].position", activeCamera->Position);
+        shaderProgram->setVec3("spotLights[0].direction", activeCamera->Front);
+        shaderProgram->setVec3("spotLights[0].ambient", 0.0f, 0.0f, 0.0f);
+        shaderProgram->setVec3("spotLights[0].diffuse", 1.0f, 1.0f, 1.0f);
+        shaderProgram->setVec3("spotLights[0].specular", 1.0f, 1.0f, 1.0f);
+        shaderProgram->setFloat("spotLights[0].constant", 1.0f);
+        shaderProgram->setFloat("spotLights[0].linear", 0.09f);
+        shaderProgram->setFloat("spotLights[0].quadratic", 0.032f);
+        shaderProgram->setFloat("spotLights[0].cutOff", glm::cos(glm::radians(12.5f)));
+        shaderProgram->setFloat("spotLights[0].outerCutOff", glm::cos(glm::radians(15.0f)));
 
         // create projection matrix
         glm::mat4 projection = glm::perspective(glm::radians(activeCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);

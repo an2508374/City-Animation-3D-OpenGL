@@ -56,7 +56,7 @@ struct SpotLight {
     vec3 diffuse;
     vec3 specular;
 };
-#define SPOT_LIGHTS_COUNTER 3
+#define SPOT_LIGHTS_COUNTER 1
 uniform SpotLight spotLights[SPOT_LIGHTS_COUNTER];
 
 
@@ -74,7 +74,7 @@ void main()
     vec3 result = CalcDirLight(dirLight, norm, viewDir);
 
     // point light
-    result += CalcPointLight(pointLight, norm, FragPos, viewDir);
+    //result += CalcPointLight(pointLight, norm, FragPos, viewDir);
 
     // spot lights
     for(int i = 0; i < SPOT_LIGHTS_COUNTER; i++)
@@ -90,11 +90,11 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     vec3 reflectDir = reflect(-lightDir, normal);
 
     float diff = max(dot(normal, lightDir), 0.0);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0001), material.shininess);
 
-    vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, TexCoords));
-    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoords));
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+    vec3 ambient  = light.ambient  * vec3(texture(material.texture_diffuse, TexCoords));
+    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.texture_diffuse, TexCoords));
+    vec3 specular = light.specular * spec * vec3(texture(material.texture_specular, TexCoords));
 
     return (ambient + diffuse + specular);
 }
@@ -106,14 +106,14 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     vec3 reflectDir = reflect(-lightDir, normal);
 
     float diff = max(dot(normal, lightDir), 0.0);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0001), material.shininess);
 
     float distance    = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
 
-    vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, TexCoords));
-    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoords));
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+    vec3 ambient  = light.ambient  * vec3(texture(material.texture_diffuse, TexCoords));
+    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.texture_diffuse, TexCoords));
+    vec3 specular = light.specular * spec * vec3(texture(material.texture_specular, TexCoords));
 
     ambient  *= attenuation;
     diffuse  *= attenuation;
@@ -135,14 +135,14 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
         vec3 reflectDir = reflect(-lightDir, normal);
 
         float diff = max(dot(normal, lightDir), 0.0);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0001), material.shininess);
 
         float distance    = length(light.position - fragPos);
         float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
 
-        vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, TexCoords));
-        vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoords));
-        vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+        vec3 ambient  = light.ambient  * vec3(texture(material.texture_diffuse, TexCoords));
+        vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.texture_diffuse, TexCoords));
+        vec3 specular = light.specular * spec * vec3(texture(material.texture_specular, TexCoords));
 
         ambient  *= attenuation;
         diffuse  *= attenuation;
@@ -155,6 +155,6 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     }
     else
     {
-        return (light.ambient * vec3(texture(material.diffuse, TexCoords)));
+        return (light.ambient * vec3(texture(material.texture_diffuse, TexCoords)));
     }
 }
