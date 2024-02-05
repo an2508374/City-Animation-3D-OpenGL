@@ -8,10 +8,10 @@ uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
-uniform vec3 mAmbient;
-uniform vec3 mDiffuse;
-uniform vec3 mSpecular;
-uniform float mShininess;
+uniform vec3 materialAmbient;
+uniform vec3 materialDiffuse;
+uniform vec3 materialSpecular;
+uniform float materialShininess;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -29,13 +29,13 @@ void main()
     vec3 viewDir = normalize(viewPos - Position);
     vec3 reflectDir = reflect(-lightDir, norm);
 
-    vec3 ambient = mAmbient * lightColor;
+    vec3 ambient = materialAmbient * lightColor;
 
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = mDiffuse * diff * lightColor;
+    vec3 diffuse = materialDiffuse * diff * lightColor;
 
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), mShininess);
-    vec3 specular = mSpecular * spec * lightColor;
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), materialShininess);
+    vec3 specular = materialSpecular * spec * lightColor;
 
     LightingColor = ambient + diffuse + specular;
 }

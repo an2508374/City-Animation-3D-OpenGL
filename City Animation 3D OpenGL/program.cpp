@@ -254,10 +254,10 @@ int main()
         shaderProgram->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
         shaderProgram->setVec3("lightPos", lightPos);
         shaderProgram->setVec3("viewPos", camera.Position);
-        shaderProgram->setVec3("mAmbient", 1.0f, 0.5f, 0.31f);
-        shaderProgram->setVec3("mDiffuse", 1.0f, 0.5f, 0.31f);
-        shaderProgram->setVec3("mSpecular", 0.5f, 0.5f, 0.5f);
-        shaderProgram->setFloat("mShininess", 32.0f);
+        shaderProgram->setVec3("materialAmbient", 1.0f, 0.5f, 0.31f);
+        shaderProgram->setVec3("materialDiffuse", 1.0f, 0.5f, 0.31f);
+        shaderProgram->setVec3("materialSpecular", 0.5f, 0.5f, 0.5f);
+        shaderProgram->setFloat("materialShininess", 32.0f);
 
         // create projection matrix
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
