@@ -362,11 +362,12 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# Jpg, Jpeg, Png, Bmp
+# Jpg, Jpeg, Png, Bmp, Tif
 **/*.jpg
 **/*.jpeg
 **/*.png
 **/*.bmp
+**/*.tif
 
-# Mtl
-**/*.mtl
+# Resources
+City Animation 3D OpenGL/Resources/
