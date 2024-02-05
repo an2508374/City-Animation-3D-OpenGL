@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <assimp/config.h>
 
 #include "stb_image.h"
 #include "Shader.h"
@@ -278,24 +279,24 @@ int main()
         shaderProgram->setMat4("model", model);
 
         // render the cube
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //glBindVertexArray(VAO);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //// render cubes
-        //glBindVertexArray(VAO);
-        //for (unsigned int i = 0; i < 10; i++)
-        //{
-        //    // create model matrix
-        //    glm::mat4 model = glm::mat4(1.0f);
-        //    model = glm::translate(model, cubePositions[i]);
+        glBindVertexArray(VAO);
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            // create model matrix
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
 
-        //    // rotate model matrix
-        //    float angle = 20.0f * i;
-        //    model = glm::rotate(model, (float)glfwGetTime() + glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-        //    
-        //    shaderProgram.setMat4("model", model);
-        //    glDrawArrays(GL_TRIANGLES, 0, 36);
-        //}
+            // rotate model matrix
+            float angle = 20.0f * i;
+            model = glm::rotate(model, (float)glfwGetTime() + glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            
+            shaderProgram->setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         // create model matrix for light
         model = glm::mat4(1.0f);

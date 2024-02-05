@@ -133,6 +133,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
@@ -144,6 +145,7 @@
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assimp-vc143-mtd.dll" />
     <None Include="Shaders\flatShader.fs.glsl" />
     <None Include="Shaders\flatShader.vs.glsl" />
     <None Include="Shaders\GouraudShader.fs.glsl" />
