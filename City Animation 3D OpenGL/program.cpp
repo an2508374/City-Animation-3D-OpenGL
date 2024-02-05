@@ -17,7 +17,6 @@ void processInput(GLFWwindow* window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-unsigned int loadTexture(const char* path);
 
 // settings
 const unsigned int SCR_WIDTH = 1800;
@@ -115,6 +114,7 @@ int main()
     //Model backpackModel("Resources/Backpack/backpack.obj");
     Model cityModel("Resources/City/city.obj");
     Model carModel("Resources/Car/car.obj");
+    Model spotlightModel("Resources/Spotlight/spotlight.obj");
 
     //// set up cube positions
     //glm::vec3 cubePositions[] = {
@@ -359,6 +359,14 @@ int main()
 
         // update first person perspective camera
         fppCamera->UpdatePositionAndFront(carPosition, carFront - carBack);
+
+        // render the spotlight model
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, startCameraTarget);
+        model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));
+
+        shaderProgram->setMat4("model", model);
+        spotlightModel.Draw(*shaderProgram);
 
         // create model matrix for light
         model = glm::mat4(1.0f);
