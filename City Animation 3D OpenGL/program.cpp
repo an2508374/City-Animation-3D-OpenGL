@@ -265,8 +265,6 @@ int main()
     //unsigned int diffuseMap = loadTexture("Resources/container2_diffuse.png");
     //unsigned int specularMap = loadTexture("Resources/container2_specular.png");
 
-    glm::vec3 carPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-
     // shader configuration
     // --------------------
     shaderProgram->use();
@@ -348,14 +346,19 @@ int main()
         model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
         model = glm::translate(model, glm::vec3(cos(glfwGetTime() / 20.0f) * 10.0f, sin(glfwGetTime() / 20.0f) * 10.0f, 0.0f));
-        //model = glm::rotate(model, glm::radians(-180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        carPosition = model * glm::vec4(carPosition, 1.0f);
 
         shaderProgram->setMat4("model", model);
         carModel.Draw(*shaderProgram);
 
+        glm::vec3 carPosition = model * glm::vec4(0.0f, -1.0f, 1.0f, 1.0f);
+        glm::vec3 carFront = model * glm::vec4(0.0f, -1.0f, 0.0f, 1.0f);
+        glm::vec3 carBack = model * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+
         // update following camera
         followingCamera->UpdateFront(glm::normalize(carPosition - startCameraPosition));
+
+        // update first person perspective camera
+        fppCamera->UpdatePositionAndFront(carPosition, carFront - carBack);
 
         // create model matrix for light
         model = glm::mat4(1.0f);
