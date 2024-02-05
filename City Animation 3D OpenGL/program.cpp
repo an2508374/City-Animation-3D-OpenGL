@@ -238,9 +238,9 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // change light position
-        lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
-        lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
+        //// change light position
+        //lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
+        //lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
 
         // bind textures
         //glActiveTexture(GL_TEXTURE0);
@@ -254,6 +254,10 @@ int main()
         shaderProgram->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
         shaderProgram->setVec3("lightPos", lightPos);
         shaderProgram->setVec3("viewPos", camera.Position);
+        shaderProgram->setVec3("mAmbient", 1.0f, 0.5f, 0.31f);
+        shaderProgram->setVec3("mDiffuse", 1.0f, 0.5f, 0.31f);
+        shaderProgram->setVec3("mSpecular", 0.5f, 0.5f, 0.5f);
+        shaderProgram->setFloat("mShininess", 32.0f);
 
         // create projection matrix
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
