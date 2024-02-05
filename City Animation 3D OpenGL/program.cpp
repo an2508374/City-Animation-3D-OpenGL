@@ -24,7 +24,7 @@ const unsigned int SCR_WIDTH = 1800;
 const unsigned int SCR_HEIGHT = 1013;
 
 // cameras
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 5.0f, 3.0f));
 
 // timing
 float deltaTime = 0.0f;	// Time between current frame and last frame
@@ -92,9 +92,9 @@ int main()
     Shader lightShaderProgram("Shaders/lightShader.vs.glsl", "Shaders/lightShader.fs.glsl");
 
     // load models
-    //Model carModel("Resources/Car/car.obj");
-    //Model carModel("Resources/Backpack/backpack.obj");
-    Model carModel("Resources/City/city.obj");
+    //Model backpackModel("Resources/Backpack/backpack.obj");
+    Model cityModel("Resources/City/city.obj");
+    Model carModel("Resources/Car/car.obj");
 
     //// set up cube positions
     //glm::vec3 cubePositions[] = {
@@ -242,8 +242,8 @@ int main()
 
     // load textures (we now use a utility function to keep the code more organized)
     // -----------------------------------------------------------------------------
-    unsigned int diffuseMap = loadTexture("Resources/container2_diffuse.png");
-    unsigned int specularMap = loadTexture("Resources/container2_specular.png");
+    //unsigned int diffuseMap = loadTexture("Resources/container2_diffuse.png");
+    //unsigned int specularMap = loadTexture("Resources/container2_specular.png");
 
     // shader configuration
     // --------------------
@@ -311,52 +311,32 @@ int main()
         glm::mat4 view = camera.GetViewMatrix();
         shaderProgram->setMat4("view", view);
 
-        // render the loaded model
+        // render the city model
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, -5.0f));
         model = glm::scale(model, glm::vec3(0.001f, 0.001f, 0.001f));
         model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         shaderProgram->setMat4("model", model);
+        cityModel.Draw(*shaderProgram);
+
+        // render the car model
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 3.0f));
+        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::translate(model, glm::vec3(cos(glfwGetTime() / 20.0f) * 10.0f, sin(glfwGetTime() / 20.0f) * 10.0f, 0.0f));
+        //model = glm::rotate(model, glm::radians(-180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        shaderProgram->setMat4("model", model);
         carModel.Draw(*shaderProgram);
 
-        // world transformation
-        //glm::mat4 model = glm::mat4(1.0f);
-        //shaderProgram->setMat4("model", model);
-
-        //// bind diffuse map
-        //glActiveTexture(GL_TEXTURE0);
-        //glBindTexture(GL_TEXTURE_2D, diffuseMap);
-
-        //// bind specular map
-        //glActiveTexture(GL_TEXTURE1);
-        //glBindTexture(GL_TEXTURE_2D, specularMap);
-
-        // render the cube
-        //glBindVertexArray(VAO);
-        //glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        //// render cubes
-        //glBindVertexArray(VAO);
-        //for (unsigned int i = 0; i < 10; i++)
-        //{
-        //    // create model matrix
-        //    glm::mat4 model = glm::mat4(1.0f);
-        //    model = glm::translate(model, cubePositions[i]);
-
-        //    // rotate model matrix
-        //    float angle = 20.0f * i;
-        //    model = glm::rotate(model, (float)glfwGetTime() + glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-        //    
-        //    shaderProgram->setMat4("model", model);
-        //    glDrawArrays(GL_TRIANGLES, 0, 36);
-        //}
-
-        //// create model matrix for light
+        // create model matrix for light
         model = glm::mat4(1.0f);
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.2f));
 
-        //// render light cube
+        // render light cube
         lightShaderProgram.use();
         lightShaderProgram.setMat4("projection", projection);
         lightShaderProgram.setMat4("view", view);
@@ -434,41 +414,4 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
-}
-
-unsigned int loadTexture(char const* path)
-{
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-
-    int width, height, nrComponents;
-    unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
-    if (data)
-    {
-        GLenum format;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
-
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        stbi_image_free(data);
-    }
-    else
-    {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
-        stbi_image_free(data);
-    }
-
-    return textureID;
 }
