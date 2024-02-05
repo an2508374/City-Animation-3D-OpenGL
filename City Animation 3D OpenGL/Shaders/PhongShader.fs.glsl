@@ -25,13 +25,13 @@ void main()
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
 
-    vec3 ambient = materialAmbient * lightColor;
+    vec3 ambient = lightAmbient * materialAmbient * lightColor;
 
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = materialDiffuse * diff * lightColor;
+    vec3 diffuse = lightDiffuse * materialDiffuse * diff * lightColor;
 
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), materialShininess);
-    vec3 specular = materialSpecular * spec * lightColor;
+    vec3 specular = lightSpecular * materialSpecular * spec * lightColor;
 
     vec3 result = (ambient + diffuse + specular) * objectColor;
     FragColor = vec4(result, 1.0);
