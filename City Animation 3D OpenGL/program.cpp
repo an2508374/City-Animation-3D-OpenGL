@@ -24,7 +24,13 @@ const unsigned int SCR_WIDTH = 1800;
 const unsigned int SCR_HEIGHT = 1013;
 
 // cameras
-Camera camera(glm::vec3(0.0f, 5.0f, 3.0f));
+Camera* stationaryCamera;
+Camera* followingCamera;
+Camera* fppCamera;
+Camera* freeCamera;
+
+Camera* activeCamera;
+bool freeCameraActive;
 
 // timing
 float deltaTime = 0.0f;	// Time between current frame and last frame
@@ -37,10 +43,10 @@ bool firstMouse = true;
 
 // lighting
 glm::vec3 lightPos(1.2f, 10.0f, 2.0f);
-Shader *PhongShaderProgram;
-Shader *GouraudShaderProgram;
-Shader *FlatShaderProgram;
-Shader *shaderProgram;
+Shader* PhongShaderProgram;
+Shader* GouraudShaderProgram;
+Shader* FlatShaderProgram;
+Shader* shaderProgram;
 
 int main()
 {
@@ -90,6 +96,15 @@ int main()
 
     shaderProgram = PhongShaderProgram;
     Shader lightShaderProgram("Shaders/lightShader.vs.glsl", "Shaders/lightShader.fs.glsl");
+
+    // initialize cameras
+    stationaryCamera = new Camera(glm::vec3(0.0f, 5.0f, 3.0f));
+    followingCamera = new Camera(glm::vec3(0.0f, 5.0f, 3.0f));
+    fppCamera = new Camera(glm::vec3(0.0f, 5.0f, 3.0f));
+    freeCamera = new Camera(glm::vec3(0.0f, 5.0f, 3.0f));
+
+    activeCamera = freeCamera;
+    freeCameraActive = true;
 
     // load models
     //Model backpackModel("Resources/Backpack/backpack.obj");
@@ -282,7 +297,7 @@ int main()
         //shaderProgram->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
         //shaderProgram->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
         //shaderProgram->setVec3("lightPos", lightPos);
-        shaderProgram->setVec3("viewPos", camera.Position);
+        shaderProgram->setVec3("viewPos", activeCamera->Position);
 
         //shaderProgram->setVec3("materialAmbient", 1.0f, 0.5f, 0.31f);
         //shaderProgram->setVec3("materialDiffuse", 1.0f, 0.5f, 0.31f);
@@ -304,11 +319,11 @@ int main()
         shaderProgram->setVec3("light.specular", 0.8f, 0.8f, 0.8f);
 
         // create projection matrix
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(activeCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         shaderProgram->setMat4("projection", projection);
 
         // create view matrix
-        glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 view = activeCamera->GetViewMatrix();
         shaderProgram->setMat4("view", view);
 
         // render the city model
@@ -368,14 +383,39 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (freeCameraActive)
+    {
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            activeCamera->ProcessKeyboard(FORWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            activeCamera->ProcessKeyboard(BACKWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            activeCamera->ProcessKeyboard(LEFT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            activeCamera->ProcessKeyboard(RIGHT, deltaTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
+    {
+        activeCamera = stationaryCamera;
+        freeCameraActive = false;
+    }
+    if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+    {
+        activeCamera = followingCamera;
+        freeCameraActive = false;
+    }
+    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+    {
+        activeCamera = fppCamera;
+        freeCameraActive = false;
+    }
+    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+    {
+        activeCamera = freeCamera;
+        freeCameraActive = true;
+        firstMouse = true;
+    }
 
     if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
         shaderProgram = FlatShaderProgram;
@@ -392,6 +432,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
+    if (!freeCameraActive)
+        return;
+
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
@@ -408,10 +451,10 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     lastX = xpos;
     lastY = ypos;
 
-    camera.ProcessMouseMovement(xoffset, yoffset);
+    activeCamera->ProcessMouseMovement(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera.ProcessMouseScroll(static_cast<float>(yoffset));
+    activeCamera->ProcessMouseScroll(static_cast<float>(yoffset));
 }

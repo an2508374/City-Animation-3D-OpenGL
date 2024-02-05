@@ -51,9 +51,12 @@ public:
     void ProcessKeyboard(Camera_Movement direction, float deltaTime);
     void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
     void ProcessMouseScroll(float yoffset);
+    void UpdateFront(glm::vec3 front);
+    void UpdatePositionAndFront(glm::vec3 position, glm::vec3 front);
 
 private:
     void updateCameraVectors();
+    void updateRightUp();
 };
 
 #endif

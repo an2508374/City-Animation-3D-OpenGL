@@ -74,6 +74,18 @@ void Camera::ProcessMouseScroll(float yoffset)
         Zoom = 45.0f;
 }
 
+void Camera::UpdateFront(glm::vec3 front)
+{
+    Front = front;
+    updateRightUp();
+}
+
+void Camera::UpdatePositionAndFront(glm::vec3 position, glm::vec3 front)
+{
+    Position = position;
+    UpdateFront(front);
+}
+
 // calculates the front vector from the Camera's (updated) Euler Angles
 void Camera::updateCameraVectors()
 {
@@ -84,7 +96,12 @@ void Camera::updateCameraVectors()
     front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
     Front = glm::normalize(front);
 
-    // also re-calculate the Right and Up vector
+    updateRightUp();
+}
+
+// recalculates the Right and Up vector
+void Camera::updateRightUp()
+{
     Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
     Up = glm::normalize(glm::cross(Right, Front));
 }
