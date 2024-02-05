@@ -32,6 +32,10 @@ bool firstMouse = true;
 
 // lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+Shader *PhongShaderProgram;
+Shader *GouraudShaderProgram;
+Shader *FlatShaderProgram;
+Shader *shaderProgram;
 
 int main()
 {
@@ -69,9 +73,11 @@ int main()
     }
 
     // build and compile shaders
-    //Shader shaderProgram("Shaders/PhongShader.vs.glsl", "Shaders/PhongShader.fs.glsl");
-    //Shader shaderProgram("Shaders/GouraudShader.vs.glsl", "Shaders/GouraudShader.fs.glsl");
-    Shader shaderProgram("Shaders/flatShader.vs.glsl", "Shaders/flatShader.fs.glsl");
+    PhongShaderProgram = new Shader("Shaders/PhongShader.vs.glsl", "Shaders/PhongShader.fs.glsl");
+    GouraudShaderProgram = new Shader("Shaders/GouraudShader.vs.glsl", "Shaders/GouraudShader.fs.glsl");
+    FlatShaderProgram = new Shader("Shaders/flatShader.vs.glsl", "Shaders/flatShader.fs.glsl");
+
+    shaderProgram = PhongShaderProgram;
     Shader lightShaderProgram("Shaders/lightShader.vs.glsl", "Shaders/lightShader.fs.glsl");
 
     // configure global opengl state
@@ -213,9 +219,9 @@ int main()
     }
     stbi_image_free(data);
 
-    shaderProgram.use();
-    shaderProgram.setInt("texture0", 0);
-    shaderProgram.setInt("texture1", 1);
+    shaderProgram->use();
+    shaderProgram->setInt("texture0", 0);
+    shaderProgram->setInt("texture1", 1);
 
     // render loop
     while (!glfwWindowShouldClose(window))
@@ -232,6 +238,10 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // change light position
+        lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
+        lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
+
         // bind textures
         //glActiveTexture(GL_TEXTURE0);
         //glBindTexture(GL_TEXTURE_2D, texture0);
@@ -239,23 +249,23 @@ int main()
         //glBindTexture(GL_TEXTURE_2D, texture1);
 
         // activate shaders
-        shaderProgram.use();
-        shaderProgram.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        shaderProgram.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-        shaderProgram.setVec3("lightPos", lightPos);
-        shaderProgram.setVec3("viewPos", camera.Position);
+        shaderProgram->use();
+        shaderProgram->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+        shaderProgram->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        shaderProgram->setVec3("lightPos", lightPos);
+        shaderProgram->setVec3("viewPos", camera.Position);
 
         // create projection matrix
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        shaderProgram.setMat4("projection", projection);
+        shaderProgram->setMat4("projection", projection);
 
         // create view matrix
         glm::mat4 view = camera.GetViewMatrix();
-        shaderProgram.setMat4("view", view);
+        shaderProgram->setMat4("view", view);
 
         // world transformation
         glm::mat4 model = glm::mat4(1.0f);
-        shaderProgram.setMat4("model", model);
+        shaderProgram->setMat4("model", model);
 
         // render the cube
         glBindVertexArray(VAO);
@@ -296,6 +306,10 @@ int main()
         glfwPollEvents();
     }
 
+    delete PhongShaderProgram;
+    delete GouraudShaderProgram;
+    delete FlatShaderProgram;
+
     // delete OpenGL's resources
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
@@ -318,6 +332,13 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+        shaderProgram = FlatShaderProgram;
+    if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+        shaderProgram = GouraudShaderProgram;
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+        shaderProgram = PhongShaderProgram;
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
