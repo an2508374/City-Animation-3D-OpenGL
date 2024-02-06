@@ -21,8 +21,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 // settings
-const unsigned int SCR_WIDTH = 1800;
-const unsigned int SCR_HEIGHT = 1013;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 
 // cameras
 Camera* stationaryCamera;
@@ -68,7 +68,7 @@ int main()
 #endif
 
     // create a window object
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "City Animation 3D", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "City Animation 3D", glfwGetPrimaryMonitor(), NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;

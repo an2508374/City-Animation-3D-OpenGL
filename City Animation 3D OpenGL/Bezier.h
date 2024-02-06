@@ -54,7 +54,7 @@ public:
     {
         int k = 0;
         float diff = 1.0f / accuracy;
-        float empty = 0.0;
+        float empty = 1.0f;
 
         for (int i = 0; i < accuracy; ++i)
         {
