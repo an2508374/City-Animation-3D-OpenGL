@@ -14,6 +14,7 @@
 #include "Model.h"
 
 void processInput(GLFWwindow* window);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -50,6 +51,9 @@ int isDay = 1;
 // reflectors
 float deltaRefPos = 0.0f;
 
+// fog
+int isFogEnabled = 0;
+
 int main()
 {
     // instantiate the GLFW window
@@ -71,6 +75,7 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window);
+    glfwSetKeyCallback(window, key_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -373,6 +378,14 @@ int main()
         shaderProgram->setFloat("spotLights[2].cutOff", glm::cos(glm::radians(12.5f)));
         shaderProgram->setFloat("spotLights[2].outerCutOff", glm::cos(glm::radians(15.0f)));
 
+        // fog parameters
+        shaderProgram->setVec3("fogParams.color", 0.75f, 0.75f, 0.75f);
+        shaderProgram->setFloat("fogParams.linearStart", 50.0f);
+        shaderProgram->setFloat("fogParams.linearEnd", 100.0f);
+        shaderProgram->setFloat("fogParams.density", 0.25f);
+        shaderProgram->setInt("fogParams.equation", 2);
+        shaderProgram->setInt("fogParams.isEnabled", isFogEnabled);
+
         // create projection matrix
         glm::mat4 projection = glm::perspective(glm::radians(activeCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         shaderProgram->setMat4("projection", projection);
@@ -566,13 +579,23 @@ void processInput(GLFWwindow* window)
         if (deltaRefPos > -0.5f)
             deltaRefPos -= 0.005f;
     }
+}
 
-    if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_N && action == GLFW_PRESS)
     {
         if (isDay == 1)
             isDay = 0;
         else
             isDay = 1;
+    }
+    if (key == GLFW_KEY_M && action == GLFW_PRESS)
+    {
+        if (isFogEnabled == 0)
+            isFogEnabled = 1;
+        else
+            isFogEnabled = 0;
     }
 }
 

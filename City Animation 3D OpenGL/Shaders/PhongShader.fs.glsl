@@ -5,6 +5,7 @@ out vec4 FragColor;
 in vec2 TexCoords;
 in vec3 FragPos;
 in vec3 Normal;
+in vec4 ViewCoordsPos;
 
 uniform int isDay;
 uniform vec3 viewPos;
@@ -61,9 +62,23 @@ struct SpotLight {
 uniform SpotLight spotLights[SPOT_LIGHTS_COUNTER];
 
 
+struct FogParameters
+{
+	vec3 color;
+	float linearStart;
+	float linearEnd;
+	float density;
+	
+	int equation;
+	int isEnabled;
+};
+uniform FogParameters fogParams;
+
+
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+float getFogFactor(FogParameters params, float fogCoordinate);
 
 
 void main()
@@ -85,6 +100,12 @@ void main()
         result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
 
     FragColor = vec4(result, 1.0);
+
+    if (fogParams.isEnabled == 1)
+    {
+        float fogCoordinate = abs(ViewCoordsPos.z / ViewCoordsPos.w);
+        FragColor = mix(FragColor, vec4(fogParams.color, 1.0), getFogFactor(fogParams, fogCoordinate));
+    }
 }
 
 
@@ -161,4 +182,26 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     {
         return (light.ambient * vec3(texture(material.texture_diffuse, TexCoords)));
     }
+}
+
+// https://www.mbsoftworks.sk/tutorials/opengl4/020-fog/
+float getFogFactor(FogParameters params, float fogCoordinate)
+{
+	float result = 0.0;
+	if (params.equation == 0)
+	{
+		float fogLength = params.linearEnd - params.linearStart;
+		result = (params.linearEnd - fogCoordinate) / fogLength;
+	}
+	else if (params.equation == 1)
+    {
+		result = exp(-params.density * fogCoordinate);
+	}
+	else if (params.equation == 2)
+    {
+		result = exp(-pow(params.density * fogCoordinate, 2.0));
+	}
+	
+	result = 1.0 - clamp(result, 0.0, 1.0);
+	return result;
 }
