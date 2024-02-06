@@ -57,7 +57,7 @@ struct SpotLight {
     vec3 diffuse;
     vec3 specular;
 };
-#define SPOT_LIGHTS_COUNTER 1
+#define SPOT_LIGHTS_COUNTER 3
 uniform SpotLight spotLights[SPOT_LIGHTS_COUNTER];
 
 

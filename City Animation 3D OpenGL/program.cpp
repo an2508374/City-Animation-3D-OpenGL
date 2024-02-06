@@ -41,7 +41,6 @@ float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 // lighting
-glm::vec3 lightPos(1.2f, 10.0f, 2.0f);
 Shader* PhongShaderProgram;
 Shader* GouraudShaderProgram;
 Shader* FlatShaderProgram;
@@ -61,7 +60,7 @@ int main()
 #endif
 
     // create a window object
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "City Animation", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "City Animation 3D", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -272,6 +271,19 @@ int main()
     shaderProgram->setInt("material.texture_diffuse", 0);
     shaderProgram->setInt("material.texture_specular", 1);
 
+    // define initial light positions and directions
+    glm::vec3 spotlightPosition = glm::vec3(-3.5f, 0.06f, 7.0f);
+    glm::vec3 spotlightTarget = glm::vec3(0.0f, 0.05f, 1.0f);
+
+    glm::vec3 reflector1InitialPosition = startCameraTarget + glm::vec3(-0.4f, -0.94f, -2.2f);
+    glm::vec3 reflector2InitialPosition = startCameraTarget + glm::vec3(0.4f, -0.94f, -2.2f);
+
+    glm::vec3 reflector1Position = reflector1InitialPosition;
+    glm::vec3 reflector2Position = reflector2InitialPosition;
+
+    glm::vec3 reflector1Target = glm::vec3(0.0f, 0.0f, 1.0f);
+    glm::vec3 reflector2Target = glm::vec3(0.0f, 0.0f, 1.0f);
+
     // render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -291,21 +303,13 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //// change light position
-        lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
-        //lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
-
         // bind textures
         //glActiveTexture(GL_TEXTURE0);
         //glBindTexture(GL_TEXTURE_2D, texture0);
         //glActiveTexture(GL_TEXTURE1);
         //glBindTexture(GL_TEXTURE_2D, texture1);
 
-        // define initial light positions and directions
-        glm::vec3 spotlightPosition = glm::vec3(-3.5f, 0.06f, 7.0f);
-        glm::vec3 spotlightTarget = glm::vec3(0.0f, 0.05f, 1.0f);
-
-        // activate shaders
+        // activate main shader and set uniform
         shaderProgram->use();
 
         shaderProgram->setInt("isDay", isDay);
@@ -327,6 +331,28 @@ int main()
         shaderProgram->setFloat("spotLights[0].quadratic", 0.032f);
         shaderProgram->setFloat("spotLights[0].cutOff", glm::cos(glm::radians(12.5f)));
         shaderProgram->setFloat("spotLights[0].outerCutOff", glm::cos(glm::radians(15.0f)));
+
+        shaderProgram->setVec3("spotLights[1].position", reflector1Position);
+        shaderProgram->setVec3("spotLights[1].direction", reflector1Target);
+        shaderProgram->setVec3("spotLights[1].ambient", 0.0f, 0.0f, 0.0f);
+        shaderProgram->setVec3("spotLights[1].diffuse", 1.0f, 1.0f, 1.0f);
+        shaderProgram->setVec3("spotLights[1].specular", 1.0f, 1.0f, 1.0f);
+        shaderProgram->setFloat("spotLights[1].constant", 1.0f);
+        shaderProgram->setFloat("spotLights[1].linear", 0.09f);
+        shaderProgram->setFloat("spotLights[1].quadratic", 0.032f);
+        shaderProgram->setFloat("spotLights[1].cutOff", glm::cos(glm::radians(12.5f)));
+        shaderProgram->setFloat("spotLights[1].outerCutOff", glm::cos(glm::radians(15.0f)));
+
+        shaderProgram->setVec3("spotLights[2].position", reflector2Position);
+        shaderProgram->setVec3("spotLights[2].direction", reflector2Target);
+        shaderProgram->setVec3("spotLights[2].ambient", 0.0f, 0.0f, 0.0f);
+        shaderProgram->setVec3("spotLights[2].diffuse", 1.0f, 1.0f, 1.0f);
+        shaderProgram->setVec3("spotLights[2].specular", 1.0f, 1.0f, 1.0f);
+        shaderProgram->setFloat("spotLights[2].constant", 1.0f);
+        shaderProgram->setFloat("spotLights[2].linear", 0.09f);
+        shaderProgram->setFloat("spotLights[2].quadratic", 0.032f);
+        shaderProgram->setFloat("spotLights[2].cutOff", glm::cos(glm::radians(12.5f)));
+        shaderProgram->setFloat("spotLights[2].outerCutOff", glm::cos(glm::radians(15.0f)));
 
         // create projection matrix
         glm::mat4 projection = glm::perspective(glm::radians(activeCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -359,6 +385,12 @@ int main()
         glm::vec3 carFront = model * glm::vec4(0.0f, -1.0f, 0.0f, 1.0f);
         glm::vec3 carBack = model * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
 
+        reflector1Position = model * glm::vec4(reflector1InitialPosition, 1.0);
+        reflector2Position = model * glm::vec4(reflector2InitialPosition, 1.0);
+
+        reflector1Target = carFront - carBack + glm::vec3(0.0f, -0.05f, 0.0f);
+        reflector2Target = carFront - carBack + glm::vec3(0.0f, -0.05f, 0.0f);
+
         // update following camera
         followingCamera->UpdateFront(glm::normalize(carPosition - startCameraPosition));
 
@@ -374,17 +406,38 @@ int main()
         shaderProgram->setMat4("model", model);
         spotlightModel.Draw(*shaderProgram);
 
-        // create model matrix for light
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f));
-
-        // render light cube
+        // activate second shader
         lightShaderProgram.use();
         lightShaderProgram.setMat4("projection", projection);
         lightShaderProgram.setMat4("view", view);
+
+        // create model matrix for spotlight tag cube
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, spotlightPosition + glm::vec3(0.0f, 0.1, 0.0f));
+        model = glm::scale(model, glm::vec3(0.025f));
         lightShaderProgram.setMat4("model", model);
 
+        // render spotlight tag cube
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // create model matrix for reflector 1 tag cube
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, reflector1Position);
+        model = glm::scale(model, glm::vec3(0.008f));
+        lightShaderProgram.setMat4("model", model);
+
+        // render reflector 1 tag cube
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // create model matrix for reflector 2 tag cube
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, reflector2Position);
+        model = glm::scale(model, glm::vec3(0.008f));
+        lightShaderProgram.setMat4("model", model);
+
+        // render reflector 2 tag cube
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
