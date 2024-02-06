@@ -117,6 +117,7 @@ int main()
     //Model backpackModel("Resources/Backpack/backpack.obj");
     Model cityModel("Resources/City/city.obj");
     Model carModel("Resources/Car/car.obj");
+    Model lanternModel("Resources/Lantern/Lantern.obj");
     Model spotlightModel("Resources/Spotlight/spotlight.obj");
 
     //// set up cube positions
@@ -275,7 +276,9 @@ int main()
     shaderProgram->setInt("material.texture_specular", 1);
 
     // define initial light positions and directions
-    glm::vec3 spotlightPosition = glm::vec3(-3.5f, 0.06f, 7.0f);
+    glm::vec3 pointlightPosition = glm::vec3(-5.0f, 0.2f, 3.0f);
+
+    glm::vec3 spotlightPosition = glm::vec3(-3.5f, 0.16f, 7.0f);
     glm::vec3 spotlightTarget = glm::vec3(0.0f, 0.05f, 1.0f);
 
     glm::vec3 reflector1InitialPosition = startCameraTarget + glm::vec3(-0.4f, -0.94f, -2.2f);
@@ -312,18 +315,29 @@ int main()
         //glActiveTexture(GL_TEXTURE1);
         //glBindTexture(GL_TEXTURE_2D, texture1);
 
-        // activate main shader and set uniform
+        // activate main shader and set uniforms
         shaderProgram->use();
 
         shaderProgram->setInt("isDay", isDay);
         shaderProgram->setVec3("viewPos", activeCamera->Position);
         shaderProgram->setFloat("material.shininess", 32.0f);
 
+        // directional light (sun)
         shaderProgram->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
         shaderProgram->setVec3("dirLight.ambient", 0.4f, 0.4f, 0.4f);
         shaderProgram->setVec3("dirLight.diffuse", 0.8f, 0.8f, 0.8f);
         shaderProgram->setVec3("dirLight.specular", 0.8f, 0.8f, 0.8f);
 
+        // pointlight
+        shaderProgram->setVec3("pointLight.position", pointlightPosition);
+        shaderProgram->setVec3("pointLight.ambient", 0.05f, 0.05f, 0.05f);
+        shaderProgram->setVec3("pointLight.diffuse", 0.8f, 0.8f, 0.8f);
+        shaderProgram->setVec3("pointLight.specular", 1.0f, 1.0f, 1.0f);
+        shaderProgram->setFloat("pointLight.constant", 1.0f);
+        shaderProgram->setFloat("pointLight.linear", 0.09f);
+        shaderProgram->setFloat("pointLight.quadratic", 0.032f);
+
+        // spotlight
         shaderProgram->setVec3("spotLights[0].position", spotlightPosition);
         shaderProgram->setVec3("spotLights[0].direction", spotlightTarget);
         shaderProgram->setVec3("spotLights[0].ambient", 0.0f, 0.0f, 0.0f);
@@ -335,6 +349,7 @@ int main()
         shaderProgram->setFloat("spotLights[0].cutOff", glm::cos(glm::radians(12.5f)));
         shaderProgram->setFloat("spotLights[0].outerCutOff", glm::cos(glm::radians(15.0f)));
 
+        // car reflector 1
         shaderProgram->setVec3("spotLights[1].position", reflector1Position);
         shaderProgram->setVec3("spotLights[1].direction", reflector1Target);
         shaderProgram->setVec3("spotLights[1].ambient", 0.0f, 0.0f, 0.0f);
@@ -346,6 +361,7 @@ int main()
         shaderProgram->setFloat("spotLights[1].cutOff", glm::cos(glm::radians(12.5f)));
         shaderProgram->setFloat("spotLights[1].outerCutOff", glm::cos(glm::radians(15.0f)));
 
+        // car reflector 2
         shaderProgram->setVec3("spotLights[2].position", reflector2Position);
         shaderProgram->setVec3("spotLights[2].direction", reflector2Target);
         shaderProgram->setVec3("spotLights[2].ambient", 0.0f, 0.0f, 0.0f);
@@ -365,6 +381,7 @@ int main()
         glm::mat4 view = activeCamera->GetViewMatrix();
         shaderProgram->setMat4("view", view);
 
+
         // render the city model
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, -5.0f));
@@ -372,6 +389,7 @@ int main()
         model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         shaderProgram->setMat4("model", model);
         cityModel.Draw(*shaderProgram);
+
 
         // render the car model
         model = glm::mat4(1.0f);
@@ -395,35 +413,60 @@ int main()
         reflector1Target = rotMatrix * glm::vec4(carFront - carBack, 1.0f) + glm::vec4(0.0f, -0.05f, 0.0f, 1.0f);
         reflector2Target = rotMatrix * glm::vec4(carFront - carBack, 1.0f) + glm::vec4(0.0f, -0.05f, 0.0f, 1.0f);
 
+
         // update following camera
         followingCamera->UpdateFront(glm::normalize(carPosition - startCameraPosition));
 
         // update first person perspective camera
         fppCamera->UpdatePositionAndFront(carPosition, carFront - carBack);
 
+
+        // render the lantern model
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, pointlightPosition - glm::vec3(0.0f, 0.2f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.02f, 0.02f, 0.02f));
+
+        shaderProgram->setMat4("model", model);
+        lanternModel.Draw(*shaderProgram);
+
+
         // render the spotlight model
         model = glm::mat4(1.0f);
-        model = glm::translate(model, spotlightPosition);
+        model = glm::translate(model, spotlightPosition - glm::vec3(0.0f, 0.1f, 0.0f));
         model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));
         model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
         shaderProgram->setMat4("model", model);
         spotlightModel.Draw(*shaderProgram);
 
+
         // activate second shader for rendering tag cubes
         lightShaderProgram.use();
         lightShaderProgram.setMat4("projection", projection);
         lightShaderProgram.setMat4("view", view);
 
+
+        // create model matrix for pointlight tag cube
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, pointlightPosition);
+        model = glm::scale(model, glm::vec3(0.025f));
+        lightShaderProgram.setMat4("model", model);
+
+        // render pointlight tag cube
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
         // create model matrix for spotlight tag cube
         model = glm::mat4(1.0f);
-        model = glm::translate(model, spotlightPosition + glm::vec3(0.0f, 0.1, 0.0f));
+        model = glm::translate(model, spotlightPosition);
         model = glm::scale(model, glm::vec3(0.025f));
         lightShaderProgram.setMat4("model", model);
 
         // render spotlight tag cube
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
 
         // create model matrix for reflector 1 tag cube
         model = glm::mat4(1.0f);
@@ -435,6 +478,7 @@ int main()
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
+
         // create model matrix for reflector 2 tag cube
         model = glm::mat4(1.0f);
         model = glm::translate(model, reflector2Position);
@@ -444,6 +488,7 @@ int main()
         // render reflector 2 tag cube
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
 
         // check and call events and swap the buffers
         glfwSwapBuffers(window);

@@ -77,10 +77,10 @@ void main()
     if (isDay == 1)
         result += CalcDirLight(dirLight, norm, viewDir);
 
-    // point light
-    //result += CalcPointLight(pointLight, norm, FragPos, viewDir);
+    // point lighting
+    result += CalcPointLight(pointLight, norm, FragPos, viewDir);
 
-    // spot lights
+    // spot lighting
     for(int i = 0; i < SPOT_LIGHTS_COUNTER; i++)
         result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
 
