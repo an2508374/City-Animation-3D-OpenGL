@@ -46,7 +46,7 @@ Shader* PhongShaderProgram;
 Shader* GouraudShaderProgram;
 Shader* FlatShaderProgram;
 Shader* shaderProgram;
-int isDay = 1;
+volatile int isDay = 1;
 
 int main()
 {
@@ -301,6 +301,10 @@ int main()
         //glActiveTexture(GL_TEXTURE1);
         //glBindTexture(GL_TEXTURE_2D, texture1);
 
+        // define initial light positions and directions
+        glm::vec3 spotlightPosition = glm::vec3(-3.5f, 0.06f, 7.0f);
+        glm::vec3 spotlightTarget = glm::vec3(0.0f, 0.05f, 1.0f);
+
         // activate shaders
         shaderProgram->use();
 
@@ -313,8 +317,8 @@ int main()
         shaderProgram->setVec3("dirLight.diffuse", 0.8f, 0.8f, 0.8f);
         shaderProgram->setVec3("dirLight.specular", 0.8f, 0.8f, 0.8f);
 
-        shaderProgram->setVec3("spotLights[0].position", followingCamera->Position);
-        shaderProgram->setVec3("spotLights[0].direction", followingCamera->Front);
+        shaderProgram->setVec3("spotLights[0].position", spotlightPosition);
+        shaderProgram->setVec3("spotLights[0].direction", spotlightTarget);
         shaderProgram->setVec3("spotLights[0].ambient", 0.0f, 0.0f, 0.0f);
         shaderProgram->setVec3("spotLights[0].diffuse", 1.0f, 1.0f, 1.0f);
         shaderProgram->setVec3("spotLights[0].specular", 1.0f, 1.0f, 1.0f);
@@ -363,8 +367,9 @@ int main()
 
         // render the spotlight model
         model = glm::mat4(1.0f);
-        model = glm::translate(model, startCameraTarget);
+        model = glm::translate(model, spotlightPosition);
         model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
         shaderProgram->setMat4("model", model);
         spotlightModel.Draw(*shaderProgram);
