@@ -91,9 +91,6 @@ int main()
         return -1;
     }
 
-    // tell stb_image.h to flip loaded texture's on the y-axis (before loading model)
-    //stbi_set_flip_vertically_on_load(true);
-
     // configure global opengl state
     glEnable(GL_DEPTH_TEST);
 
@@ -120,25 +117,10 @@ int main()
     stationaryCamera->UpdateFront(glm::normalize(startCameraTarget - startCameraPosition));
 
     // load models
-    //Model backpackModel("Resources/Backpack/backpack.obj");
     Model cityModel("Resources/City/city.obj");
     Model carModel("Resources/Car/car.obj");
     Model lanternModel("Resources/Lantern/Lantern.obj");
     Model spotlightModel("Resources/Spotlight/spotlight.obj");
-
-    //// set up cube positions
-    //glm::vec3 cubePositions[] = {
-    //    glm::vec3(0.0f,  0.0f,  0.0f),
-    //    glm::vec3(2.0f,  5.0f, -15.0f),
-    //    glm::vec3(-1.5f, -2.2f, -2.5f),
-    //    glm::vec3(-3.8f, -2.0f, -12.3f),
-    //    glm::vec3(2.4f, -0.4f, -3.5f),
-    //    glm::vec3(-1.7f,  3.0f, -7.5f),
-    //    glm::vec3(1.3f, -2.0f, -2.5f),
-    //    glm::vec3(1.5f,  2.0f, -2.5f),
-    //    glm::vec3(1.5f,  0.2f, -1.5f),
-    //    glm::vec3(-1.3f,  1.0f, -1.5f)
-    //};
 
     // initialize Bezier surface
     BezierSurface bezierSurface = BezierSurface();
@@ -224,97 +206,22 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
     };
 
-    // configure vertex attributes
-    unsigned int VBO, VAO;
-    glGenVertexArrays(1, &VAO);
+    // configure light object
+    unsigned int VBO, lightVAO;
+    glGenVertexArrays(1, &lightVAO);
     glGenBuffers(1, &VBO);
-    //glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
+    glBindVertexArray(lightVAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    // configure light object
-    unsigned int lightVAO;
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    //// load and create textures
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    //int width, height, nrChannels;
-    //unsigned char* data;
-    //stbi_set_flip_vertically_on_load(true);
-
-    //unsigned int texture0;
-    //glGenTextures(1, &texture0);
-    //glBindTexture(GL_TEXTURE_2D, texture0);
-
-    //data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
-    //if (data)
-    //{
-    //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    //    glGenerateMipmap(GL_TEXTURE_2D);
-    //}
-    //else
-    //{
-    //    std::cout << "Failed to load texture 1" << std::endl;
-    //}
-    //stbi_image_free(data);
-
-    //unsigned int texture1;
-    //glGenTextures(1, &texture1);
-    //glBindTexture(GL_TEXTURE_2D, texture1);
-
-    //data = stbi_load("awesomeface.png", &width, &height, &nrChannels, 0);
-    //if (data)
-    //{
-    //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    //    glGenerateMipmap(GL_TEXTURE_2D);
-    //}
-    //else
-    //{
-    //    std::cout << "Failed to load texture 2" << std::endl;
-    //}
-    //stbi_image_free(data);
-
-    //shaderProgram->use();
-    //shaderProgram->setInt("texture0", 0);
-    //shaderProgram->setInt("texture1", 1);
-
-    // load textures (we now use a utility function to keep the code more organized)
-    // -----------------------------------------------------------------------------
-    //unsigned int diffuseMap = loadTexture("Resources/container2_diffuse.png");
-    //unsigned int specularMap = loadTexture("Resources/container2_specular.png");
-
-    // shader configuration
-    // --------------------
+    // configure shader
     shaderProgram->use();
     shaderProgram->setInt("material.texture_diffuse", 0);
     shaderProgram->setInt("material.texture_specular", 1);
@@ -352,12 +259,6 @@ int main()
             glClearColor(0.128f, 0.171f, 0.700f, 1.0f);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // bind textures
-        //glActiveTexture(GL_TEXTURE0);
-        //glBindTexture(GL_TEXTURE_2D, texture0);
-        //glActiveTexture(GL_TEXTURE1);
-        //glBindTexture(GL_TEXTURE_2D, texture1);
 
         // activate main shader and set uniforms
         shaderProgram->use();
@@ -572,7 +473,7 @@ int main()
     glDeleteVertexArrays(1, &bezierVAO);
     glDeleteBuffers(1, &bezierVBO);
 
-    glDeleteVertexArrays(1, &VAO);
+    glDeleteVertexArrays(1, &lightVAO);
     glDeleteBuffers(1, &VBO);
 
     // terminate GLFW's resources
