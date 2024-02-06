@@ -45,7 +45,10 @@ Shader* PhongShaderProgram;
 Shader* GouraudShaderProgram;
 Shader* FlatShaderProgram;
 Shader* shaderProgram;
-volatile int isDay = 1;
+int isDay = 1;
+
+// reflectors
+float deltaRefPos = 0.0f;
 
 int main()
 {
@@ -388,8 +391,9 @@ int main()
         reflector1Position = model * glm::vec4(reflector1InitialPosition, 1.0);
         reflector2Position = model * glm::vec4(reflector2InitialPosition, 1.0);
 
-        reflector1Target = carFront - carBack + glm::vec3(0.0f, -0.05f, 0.0f);
-        reflector2Target = carFront - carBack + glm::vec3(0.0f, -0.05f, 0.0f);
+        glm::mat4 rotMatrix = glm::rotate(glm::mat4(1.0f), deltaRefPos, glm::vec3(0.0f, 1.0f, 0.0f));
+        reflector1Target = rotMatrix * glm::vec4(carFront - carBack, 1.0f) + glm::vec4(0.0f, -0.05f, 0.0f, 1.0f);
+        reflector2Target = rotMatrix * glm::vec4(carFront - carBack, 1.0f) + glm::vec4(0.0f, -0.05f, 0.0f, 1.0f);
 
         // update following camera
         followingCamera->UpdateFront(glm::normalize(carPosition - startCameraPosition));
@@ -406,7 +410,7 @@ int main()
         shaderProgram->setMat4("model", model);
         spotlightModel.Draw(*shaderProgram);
 
-        // activate second shader
+        // activate second shader for rendering tag cubes
         lightShaderProgram.use();
         lightShaderProgram.setMat4("projection", projection);
         lightShaderProgram.setMat4("view", view);
@@ -504,6 +508,19 @@ void processInput(GLFWwindow* window)
         shaderProgram = GouraudShaderProgram;
     if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
         shaderProgram = PhongShaderProgram;
+
+    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+    {
+        if (deltaRefPos < 0.5f)
+            deltaRefPos += 0.005f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+        deltaRefPos = 0.0f;
+    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+    {
+        if (deltaRefPos > -0.5f)
+            deltaRefPos -= 0.005f;
+    }
 
     if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
     {
