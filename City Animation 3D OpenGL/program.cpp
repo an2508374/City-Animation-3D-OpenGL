@@ -12,6 +12,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
+#include "Bezier.h"
 
 void processInput(GLFWwindow* window);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -139,6 +140,44 @@ int main()
     //    glm::vec3(-1.3f,  1.0f, -1.5f)
     //};
 
+    // initialize Bezier surface
+    BezierSurface bezierSurface = BezierSurface();
+
+    float controlPoints[] = {
+        0.0f, 0.5f, 1.0f, 0.5f,
+        0.5f, 1.0f, 1.0f, 0.5f,
+        0.0f, 0.5f, 1.0f, 0.0f,
+        0.0f, 0.5f, 0.0f, 0.0f
+    };
+
+    bezierSurface.SetBaseZValues(controlPoints);
+
+    const int accuracy = 10;
+    const int length = accuracy * accuracy * 6 * 8;
+    float* bezierVertices = new float[length];
+    bezierSurface.FillArrayWithValues(bezierVertices, length, accuracy);
+
+    unsigned int bezierVBO, bezierVAO;
+    glGenVertexArrays(1, &bezierVAO);
+    glGenBuffers(1, &bezierVBO);
+
+    glBindVertexArray(bezierVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, bezierVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(bezierVertices), bezierVertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
     //// set up vertices
     float vertices[] = {
         // positions          // normals           // texture coords
@@ -185,8 +224,8 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
     };
 
-    //// configure vertex attributes
-    unsigned int VBO, VAO, EBO;
+    // configure vertex attributes
+    unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     //glGenBuffers(1, &EBO);
@@ -453,6 +492,16 @@ int main()
         spotlightModel.Draw(*shaderProgram);
 
 
+        // render Bezier surface
+        model = glm::mat4(1.0f);
+        //model = glm::translate(model, glm::vec3(0.0f, 0.1f, 0.0f));
+        model = glm::scale(model, glm::vec3(2.0f, 1.0f, 1.0f));
+        shaderProgram->setMat4("model", model);
+
+        glBindVertexArray(bezierVAO);
+        glDrawArrays(GL_TRIANGLES, 0, accuracy * accuracy * 6);
+
+
         // activate second shader for rendering tag cubes
         lightShaderProgram.use();
         lightShaderProgram.setMat4("projection", projection);
@@ -508,11 +557,21 @@ int main()
         glfwPollEvents();
     }
 
+    delete []bezierVertices;
+
     delete PhongShaderProgram;
     delete GouraudShaderProgram;
     delete FlatShaderProgram;
 
+    delete stationaryCamera;
+    delete followingCamera;
+    delete fppCamera;
+    delete freeCamera;
+
     // delete OpenGL's resources
+    glDeleteVertexArrays(1, &bezierVAO);
+    glDeleteBuffers(1, &bezierVBO);
+
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
 
