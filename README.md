@@ -35,10 +35,10 @@ Additional modes:
 #### Reflectors on the moving car:
 ![Image 1](Images/moving_light.png)
 
-#### Point source of light:
+#### Example of point light:
 ![Image 2](Images/point_light.png)
 
-#### Directional source of light:
+#### Example of spot light:
 ![Image 3](Images/spot_light.png)
 
 #### Flat shading:
@@ -53,5 +53,5 @@ Additional modes:
 #### Fog effect:
 ![Image 7](Images/fog_effect.png)
 
-## Short video
-See ![Videos/City_Animation_3D.mp4](Videos/City_Animation_3D.mp4)
+## Short presentation
+See video: ![Videos/City_Animation_3D.mp4](Videos/City_Animation_3D.mp4)
