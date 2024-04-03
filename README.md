@@ -30,5 +30,28 @@ Additional modes:
 - [ ] <kbd>n</kbd> - day/night (day as default)
 - [ ] <kbd>m</kbd> - on/off fog mode (off as default)
 
-## Presentation
-![Video 1](Videos/City_Animation_3D.mp4)
+## Images
+
+#### Reflectors on the moving car:
+![Image 1](Images/moving_light.png)
+
+#### Point source of light:
+![Image 2](Images/point_light.png)
+
+#### Directional source of light:
+![Image 3](Images/spot_light.png)
+
+#### Flat shading:
+![Image 4](Images/flat_shading.png)
+
+#### Gouraud shading:
+![Image 5](Images/gouraud_shading.png)
+
+#### Phong shading:
+![Image 6](Images/phong_shading.png)
+
+#### Fog effect:
+![Image 7](Images/fog_effect.png)
+
+## Short video
+See ![Videos/City_Animation_3D.mp4](Videos/City_Animation_3D.mp4)
