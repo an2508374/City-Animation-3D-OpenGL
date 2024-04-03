@@ -31,4 +31,4 @@ Additional modes:
 - [ ] <kbd>m</kbd> - on/off fog mode (off as default)
 
 ## Presentation
-![Video 1](Images/City_Animation_3D.mp4)
+![Video 1](Videos/City_Animation_3D.mp4)
