@@ -8,6 +8,7 @@ Switching camera modes:
 - [ ] <kbd>j</kbd> - camera following the moving car
 - [ ] <kbd>k</kbd> - camera located on the moving car
 - [ ] <kbd>l</kbd> - free camera - use <kbd>w</kbd><kbd>s</kbd><kbd>a</kbd><kbd>d</kbd> and mouse to change its position
+
 Scroll to change field of view in any camera mode.
 
 Switching shading modes:
