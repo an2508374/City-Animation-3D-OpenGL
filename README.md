@@ -1,6 +1,11 @@
 ## OpenGL graphical app - City Animation 3D
 
 ## General description
+- [ ] A desktop application written in C/C++
+- [ ] OpenGL API used to achieve hardware-accelerated rendering
+- [ ] Shaders written in GLSL (OpenGL Shading Language), executed on GPU
+- [ ] GLFW library used to create an OpenGL context, define window parameters and handle user input
+- [ ] Assimp library used to import model data into a scene object that contains all the data 
 
 ## Controls
 Switching camera modes:
